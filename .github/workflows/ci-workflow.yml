@@ -4,10 +4,10 @@ on:
   workflow_dispatch:
   push:
     branches:
+      - master
       - main
+      - develop
   pull_request:
-    branches:
-      - main
 
 jobs:
   job_build_plugin_nano_s:
@@ -28,7 +28,7 @@ jobs:
         run: |
           make clean
           make BOLOS_SDK=$NANOS_SDK
-  
+
   job_build_plugin_nano_sp:
     name: Build plugin for Nano S Plus
     runs-on: ubuntu-latest
@@ -94,7 +94,7 @@ jobs:
         with:
           name: binaries
           path: tests/elfs/plugin_nanos.elf
-  
+
 
   job_build_plugin_debug_nano_sp:
     name: Build plugin for Nano S Plus testing
@@ -177,7 +177,7 @@ jobs:
         with:
           name: binaries
           path: tests/elfs/ethereum_nanos.elf
-  
+
   job_build_ethereum_nano_sp:
     name: Build Ethereum application for Nano S Plus testing
     runs-on: ubuntu-latest
