@@ -17,12 +17,14 @@ jobs:
         uses: actions/checkout@v3
         with:
           submodules: recursive
+
       - name: Clone SDK
         uses: actions/checkout@v3
         with:
           repository: LedgerHQ/ethereum-plugin-sdk
           path: plugin-sdk
           ref: ${{ github.base_ref || github.ref_name }}
+
       - name: Comparing the SDK hash values
         run: |
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
