@@ -33,7 +33,7 @@ static void set_send_native_ui(ethQueryContractUI_t *msg,
 
   // Converts the uint256 number located in `eth_amount` to its string
   // representation and copies this to `msg->msg`.
-  amountToString(eth_amount, eth_amount_size, WEI_TO_ETHER, "ETH ", msg->msg,
+  amountToString(eth_amount, eth_amount_size, WEI_TO_ETHER, "ETH", msg->msg,
                  msg->msgLength);
 }
 
