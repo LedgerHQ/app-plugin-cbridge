@@ -21,7 +21,6 @@ endif
 
 include $(BOLOS_SDK)/Makefile.defines
 
-# EDIT THIS: Put your plugin name
 APPNAME = "cBridge"
 
 ifeq ($(ETHEREUM_PLUGIN_SDK),)
@@ -37,9 +36,13 @@ APPVERSION_N     = 0
 APPVERSION_P     = 0
 APPVERSION       = "$(APPVERSION_M).$(APPVERSION_N).$(APPVERSION_P)"
 
-# EDIT THIS: Change the name of the gif, and generate you own GIFs!
 ifeq ($(TARGET_NAME), TARGET_NANOS)
 ICONNAME=icons/nanos_app_cbridge.gif
+else ifeq ($(TARGET_NAME), TARGET_STAX)
+ICONNAME=icons/stax_app_cbridge.gif
+DEFINES += ICONGLYPH=C_stax_cbridge_64px
+DEFINES += ICONBITMAP=C_stax_cbridge_64px_bitmap
+GLYPH_FILES += $(ICONNAME)
 else
 ICONNAME=icons/nanox_app_cbridge.gif
 endif
@@ -54,14 +57,15 @@ all: default
 ############
 
 DEFINES   += OS_IO_SEPROXYHAL
-DEFINES   += HAVE_BAGL HAVE_SPRINTF
+DEFINES   += HAVE_SPRINTF
 DEFINES   += LEDGER_MAJOR_VERSION=$(APPVERSION_M) LEDGER_MINOR_VERSION=$(APPVERSION_N) LEDGER_PATCH_VERSION=$(APPVERSION_P)
 DEFINES   += IO_HID_EP_LENGTH=64
 
 DEFINES   += UNUSED\(x\)=\(void\)x
 DEFINES   += APPVERSION=\"$(APPVERSION)\"
+CFLAGS    += -DAPPNAME=\"$(APPNAME)\"
 
-ifeq ($(TARGET_NAME),TARGET_NANOX)
+ifneq (,$(filter $(TARGET_NAME),TARGET_NANOX TARGET_STAX))
 DEFINES   += HAVE_BLE BLE_COMMAND_TIMEOUT_MS=2000
 DEFINES   += HAVE_BLE_APDU # basic ledger apdu transport over BLE
 endif
@@ -70,6 +74,11 @@ ifeq ($(TARGET_NAME),TARGET_NANOS)
 DEFINES   += IO_SEPROXYHAL_BUFFER_SIZE_B=128
 else
 DEFINES   += IO_SEPROXYHAL_BUFFER_SIZE_B=300
+endif
+
+ifneq  ($(TARGET_NAME),TARGET_STAX)
+DEFINES   += HAVE_BAGL
+ifneq ($(TARGET_NAME),TARGET_NANOS)
 DEFINES   += HAVE_GLO096
 DEFINES   += HAVE_BAGL BAGL_WIDTH=128 BAGL_HEIGHT=64
 DEFINES   += HAVE_BAGL_ELLIPSIS # long label truncation feature
@@ -78,10 +87,10 @@ DEFINES   += HAVE_BAGL_FONT_OPEN_SANS_EXTRABOLD_11PX
 DEFINES   += HAVE_BAGL_FONT_OPEN_SANS_LIGHT_16PX
 DEFINES   += HAVE_UX_FLOW
 endif
+endif
 
 
 # Enabling debug PRINTF
-DEBUG:= 1
 ifneq ($(DEBUG),0)
         DEFINES += HAVE_SEMIHOSTED_PRINTF PRINTF=semihosted_printf
         CFLAGS  += -include src/dbg/debug.h
@@ -108,12 +117,9 @@ endif
 
 CC       := $(CLANGPATH)clang
 
-CFLAGS   += -Oz
-
 AS     := $(GCCPATH)arm-none-eabi-gcc
 
 LD       := $(GCCPATH)arm-none-eabi-gcc
-LDFLAGS  += -O3 -Os
 LDLIBS   += -lm -lgcc -lc
 
 # import rules to compile glyphs(/pone)
@@ -121,13 +127,12 @@ include $(BOLOS_SDK)/Makefile.glyphs
 
 ### variables processed by the common makefile.rules of the SDK to grab source files and include dirs
 APP_SOURCE_PATH  += src $(ETHEREUM_PLUGIN_SDK)
+ifneq ($(TARGET_NAME), TARGET_STAX)
 SDK_SOURCE_PATH  += lib_ux
+endif
 ifneq (,$(findstring HAVE_BLE,$(DEFINES)))
 SDK_SOURCE_PATH  += lib_blewbxx lib_blewbxx_impl
 endif
-
-# remove UX warnings from SDK even though the plugin doesn't use it
-DEFINES          += HAVE_UX_FLOW
 
 ### initialize plugin SDK submodule if needed
 ifneq ($(shell git submodule status | grep '^[-+]'),)
@@ -149,5 +154,4 @@ include $(BOLOS_SDK)/Makefile.rules
 dep/%.d: %.c Makefile
 
 listvariants:
-        # EDIT THIS: replace `boilerplate` by the lowercase name of your plugin
 	@echo VARIANTS NONE cbridge
