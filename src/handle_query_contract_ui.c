@@ -25,8 +25,7 @@ static bool set_send_ui(ethQueryContractUI_t *msg, const context_t *context) {
                         decimals, ticker, msg->msg, msg->msgLength);
 }
 
-static bool set_send_native_ui(ethQueryContractUI_t *msg,
-                               const context_t *context) {
+static bool set_send_native_ui(ethQueryContractUI_t *msg) {
   strlcpy(msg->title, "Send", msg->titleLength);
 
   const uint8_t *eth_amount = msg->pluginSharedRO->txContent->value.value;
@@ -75,7 +74,7 @@ void handle_query_contract_ui(ethQueryContractUI_t *msg) {
   } else if (context->selectorIndex == POOL_BASED_SEND_NATIVE) {
     switch (msg->screenIndex) {
     case 0:
-      ret = set_send_native_ui(msg, context);
+      ret = set_send_native_ui(msg);
       break;
     case 1:
       ret = set_receive_ui(msg, context);
